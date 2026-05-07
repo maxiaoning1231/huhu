@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#87CEEB">
     <title>🚗 小汽车大冒险 | Car Adventure</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -13,11 +14,14 @@
             font-family: 'Arial', sans-serif;
             background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 50%, #228B22 100%);
             min-height: 100vh;
+            min-height: 100dvh;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
+            -webkit-font-smoothing: antialiased;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
         
         /* 主菜单 */
@@ -35,6 +39,10 @@
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-10px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .menu-title, .scene-car, .mud, .trophy, .match-card.matched { animation: none !important; }
+            .confetti { animation-duration: 0.01s !important; }
         }
         .road-decoration {
             font-size: clamp(40px, 10vw, 60px);
@@ -618,65 +626,198 @@
             overflow: hidden;
             border-radius: 15px;
             border: 4px solid #333;
+            position: relative;
+            background: linear-gradient(180deg, #87CEEB 0%, #B8E0FF 18%, #6B8E6B 18%, #5a7a4a 22%, #4a4a4a 22%, #3d3d3d 100%);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.15);
+        }
+        .escape-phase-badge {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.92);
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .escape-road-wrap {
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            top: 22%;
+            bottom: 0;
+            display: flex;
+        }
+        .escape-scenery {
+            width: 14%;
+            flex-shrink: 0;
+            font-size: 22px;
+            line-height: 1.1;
+            text-align: center;
+            padding-top: 8px;
+            opacity: 0.85;
+            overflow: hidden;
+            user-select: none;
+        }
+        .escape-scenery-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            animation: escapeTrees 2.2s linear infinite;
+        }
+        @keyframes escapeTrees {
+            from { transform: translateY(0); }
+            to { transform: translateY(120px); }
         }
         .escape-road {
-            width: 100%;
+            flex: 1;
+            min-width: 0;
             height: 100%;
-            background: linear-gradient(#555 0%, #555 100%);
+            background: linear-gradient(90deg, #444 0%, #555 15%, #555 85%, #444 100%);
             background-image: repeating-linear-gradient(
                 0deg,
                 transparent,
-                transparent 24px,
-                rgba(255,255,255,0.1) 24px,
-                rgba(255,255,255,0.1) 25px
+                transparent 22px,
+                rgba(255,255,255,0.12) 22px,
+                rgba(255,255,255,0.12) 23px
             );
             position: relative;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.35);
+        }
+        .escape-road--country {
+            background: linear-gradient(90deg, #4a4038 0%, #5c5048 15%, #5c5048 85%, #4a4038 100%);
+        }
+        .escape-road--night {
+            background: linear-gradient(90deg, #1a1a2e 0%, #2a2a44 15%, #2a2a44 85%, #1a1a2e 100%);
+            box-shadow: inset 0 0 30px rgba(80, 80, 200, 0.25);
+        }
+        .escape-road--boost {
+            animation: escapeBoostPulse 0.35s ease infinite alternate;
+        }
+        @keyframes escapeBoostPulse {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.15) saturate(1.2); }
         }
         .road-line {
             position: absolute;
             top: 0;
-            width: 4px;
+            width: 3px;
             height: 100%;
             background: repeating-linear-gradient(
                 to bottom,
                 #fff 0px,
-                #fff 20px,
-                transparent 20px,
-                transparent 40px
+                #fff 16px,
+                transparent 16px,
+                transparent 32px
             );
+            opacity: 0.85;
         }
         .escape-player {
             position: absolute;
-            bottom: 40px;
+            bottom: 12%;
             left: 45%;
-            font-size: 50px;
-            transition: left 0.15s ease;
+            font-size: 46px;
+            transition: left 0.12s ease, transform 0.12s ease;
             z-index: 10;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.35));
+        }
+        .escape-player--tiltL { transform: rotate(-8deg) scale(1.02); }
+        .escape-player--tiltR { transform: rotate(8deg) scale(1.02); }
+        .escape-player--shield {
+            filter: drop-shadow(0 0 12px #4FC3F7) drop-shadow(0 5px 5px rgba(0,0,0,0.35));
         }
         .escape-obstacle {
             position: absolute;
-            font-size: 45px;
+            font-size: 42px;
             transform: translateX(-50%);
             z-index: 5;
         }
-        .escape-coin {
+        .escape-obstacle--wide {
+            font-size: 48px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .escape-pickup {
             position: absolute;
-            font-size: 30px;
             transform: translateX(-50%);
-            z-index: 5;
-            animation: coinSpin 0.5s ease infinite;
+            z-index: 6;
+            font-size: 30px;
+            animation: coinSpin 0.55s ease infinite;
+        }
+        .escape-pickup--big {
+            font-size: 36px;
+            animation: escapeBigPulse 0.6s ease infinite;
+        }
+        @keyframes escapeBigPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.15); }
+        }
+        .escape-pickup--gear {
+            animation: coinSpin 0.8s ease infinite;
+            font-size: 32px;
         }
         @keyframes coinSpin {
             0%, 100% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.2); }
+            50% { transform: translateX(-50%) scale(1.18); }
+        }
+        .escape-float {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 1px 2px #000;
+            pointer-events: none;
+            z-index: 25;
+            animation: escapeFloatUp 0.9s ease forwards;
+        }
+        @keyframes escapeFloatUp {
+            from { opacity: 1; bottom: 35%; }
+            to { opacity: 0; bottom: 55%; }
+        }
+        .escape-toast {
+            position: absolute;
+            bottom: 28%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            z-index: 22;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 16px;
+            background: rgba(0,0,0,0.72);
+            color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            max-width: 92%;
+            text-align: center;
+        }
+        .escape-toast--show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
         }
         .escape-stats {
             display: flex;
-            justify-content: space-around;
-            font-size: 24px;
-            margin: 15px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 16px;
+            font-size: clamp(16px, 4vw, 22px);
+            margin: 12px 0;
             font-weight: bold;
+        }
+        .escape-stat-pill {
+            background: rgba(255,255,255,0.88);
+            padding: 6px 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         .escape-controls {
             display: flex;
@@ -707,13 +848,17 @@
                 height: 70px;
                 font-size: 36px;
             }
+            .escape-player { font-size: 40px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .escape-scenery-inner, .escape-road--boost, .escape-pickup, .escape-pickup--big { animation: none !important; }
         }
         
         /* 音乐和语言控制 */
         .controls-bar {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: max(10px, env(safe-area-inset-top));
+            right: max(10px, env(safe-area-inset-right));
             display: flex;
             gap: 10px;
             z-index: 50;
@@ -756,7 +901,7 @@
     <div class="menu-screen" id="menuScreen">
         <div class="road-decoration">🛣️🚗🚕🚙🏎️🚐🚓🛻🚘🚖🚛🛣️</div>
         <h1 class="menu-title">🚗 小汽车大冒险</h1>
-        <div class="stars-display" id="starsDisplay">⭐ 总星星: <span id="totalStars">0</span>/36</div>
+        <div class="stars-display" id="starsDisplay"><span id="starsLabel"></span><span id="totalStars">0</span>/36</div>
         <div class="level-grid" id="levelGrid"></div>
         <div class="road-decoration">🏁🏆🎉🎊🎈🏁</div>
     </div>
@@ -803,6 +948,28 @@
                 youAreMaster: '你是小汽车达人!',
                 collected: '收集了',
                 stars: '颗星星!',
+                wheelsInstalled: '已安装',
+                wheelsSuffix: '/4',
+                raceCoins: '💰 金币:',
+                crossingStep: '走一步 ➡️',
+                escape: {
+                    phase0: '🏙️ 城市',
+                    phase1: '🌳 郊外',
+                    phase2: '🌙 夜路',
+                    toastCountry: '进入郊外！车速更快啦～',
+                    toastNight: '天黑了！注意车灯～',
+                    toastShield: '护盾 +1！可挡一次撞击',
+                    toastBoost: '火箭冲刺！',
+                    toastBig: '大金块 +5！',
+                    toastShieldHit: '护盾挡住撞击！',
+                    comboLine: '连击 x',
+                    shieldLine: '护盾',
+                    boostLine: '冲刺中',
+                    floatShield: '护盾！',
+                    floatBoost: '火箭！',
+                    statCombo: '连击',
+                    statShield: '护盾'
+                },
                 levels: [
                     { name: '停车场', instruction: '把小车停到相同颜色的车位!' },
                     { name: '红绿灯', instruction: '看灯行动!' },
@@ -812,7 +979,7 @@
                     { name: '洗车房', instruction: '点击泥巴把车洗干净!' },
                     { name: '修车厂', instruction: '给小车装上轮子!' },
                     { name: '终点站', instruction: '' },
-                    { name: '汽车逃亡', instruction: '左右躲避障碍，收集金币!' },
+                    { name: '汽车逃亡', instruction: '左右躲障碍，捡金币、大金块、护盾和火箭！连击越高分数越多～' },
                     { name: '汽车配对', instruction: '找到相同的汽车!' },
                     { name: '数汽车', instruction: '数一数有几辆' },
                     { name: '过马路', instruction: '等车过去，点按钮前进!' }
@@ -834,6 +1001,28 @@
                 youAreMaster: 'You are a Car Master!',
                 collected: 'Collected',
                 stars: 'stars!',
+                wheelsInstalled: 'Installed',
+                wheelsSuffix: '/4',
+                raceCoins: '💰 Coins:',
+                crossingStep: 'Step ➡️',
+                escape: {
+                    phase0: '🏙️ City',
+                    phase1: '🌳 Country',
+                    phase2: '🌙 Night',
+                    toastCountry: 'Country road — speed up!',
+                    toastNight: 'Night drive — stay sharp!',
+                    toastShield: 'Shield up! Blocks one hit.',
+                    toastBoost: 'Rocket boost!',
+                    toastBig: 'Big coin +5!',
+                    toastShieldHit: 'Shield blocked the hit!',
+                    comboLine: 'Combo x',
+                    shieldLine: 'Shield',
+                    boostLine: 'Boost',
+                    floatShield: 'Shield!',
+                    floatBoost: 'Rocket!',
+                    statCombo: 'Combo',
+                    statShield: 'Shield'
+                },
                 levels: [
                     { name: 'Parking', instruction: 'Park cars in matching spots!' },
                     { name: 'Traffic Light', instruction: 'Watch the light!' },
@@ -843,7 +1032,7 @@
                     { name: 'Car Wash', instruction: 'Clean the mud!' },
                     { name: 'Repair Shop', instruction: 'Put on the wheels!' },
                     { name: 'Finish Line', instruction: '' },
-                    { name: 'Car Escape', instruction: 'Dodge obstacles, collect coins!' },
+                    { name: 'Car Escape', instruction: 'Dodge, grab coins, big coins, shields & rockets! Build combos for a high score!' },
                     { name: 'Car Match', instruction: 'Find matching cars!' },
                     { name: 'Count Cars', instruction: 'Count the cars!' },
                     { name: 'Cross Road', instruction: 'Wait and cross safely!' }
@@ -938,10 +1127,40 @@
             playNote(800, 0.1, audioCtx.currentTime);
         }
         
+        const STORAGE_KEY = 'car-adventure-v1';
+        
         // 游戏状态
         let currentLevel = 1;
         let levelStars = [0,0,0,0,0,0,0,0,0,0,0,0];
         let gameState = {};
+        
+        function loadProgress() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (Array.isArray(data.stars) && data.stars.length === 12) {
+                    levelStars = data.stars.map((n) => Math.min(3, Math.max(0, Number(n) || 0)));
+                }
+            } catch (e) { /* ignore */ }
+        }
+        
+        function saveProgress() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ stars: levelStars }));
+            } catch (e) { /* ignore */ }
+        }
+        
+        function cleanupLevel() {
+            if (gameState.interval) clearInterval(gameState.interval);
+            if (gameState.moveInterval) clearInterval(gameState.moveInterval);
+            if (gameState.spawnTimer) clearInterval(gameState.spawnTimer);
+            if (gameState.carInterval) clearInterval(gameState.carInterval);
+            if (gameState.gameLoop) cancelAnimationFrame(gameState.gameLoop);
+            document.removeEventListener('keydown', raceKeyHandler);
+            document.removeEventListener('keydown', escapeKeyHandler);
+            gameState.interval = gameState.moveInterval = gameState.spawnTimer = gameState.carInterval = gameState.gameLoop = null;
+        }
         
         const levels = [
             { icon: '🅿️', color: '#4CAF50' },
@@ -976,7 +1195,10 @@
         
         function updateTotalStars() {
             const t = i18n[currentLang];
-            document.getElementById('totalStars').textContent = t.totalStars + ' ' + levelStars.reduce((a,b) => a+b, 0) + '/36';
+            const labelEl = document.getElementById('starsLabel');
+            const numEl = document.getElementById('totalStars');
+            if (labelEl) labelEl.textContent = t.totalStars + ' ';
+            if (numEl) numEl.textContent = String(levelStars.reduce((a, b) => a + b, 0));
         }
         
         function startLevel(level) {
@@ -991,6 +1213,8 @@
         
         function backToMenu() {
             playClickSound();
+            cleanupLevel();
+            gameState = {};
             document.getElementById('gameScreen').style.display = 'none';
             document.getElementById('menuScreen').style.display = 'block';
             document.getElementById('resultOverlay').style.display = 'none';
@@ -1003,6 +1227,7 @@
         }
         
         function loadLevel(level) {
+            cleanupLevel();
             const area = document.getElementById('gameArea');
             gameState = {};
             switch(level) {
@@ -1169,10 +1394,15 @@
             gameState.filled = num;
             let drops = '';
             for (let i = 0; i < num; i++) drops += '💧';
-            document.getElementById('fuelDisplay').textContent = drops || '💧';
+            const fuelDisplay = document.getElementById('fuelDisplay');
+            fuelDisplay.textContent = drops || '💧';
             
             if (num === gameState.target) {
                 setTimeout(() => showResult(3), 500);
+            } else {
+                fuelDisplay.style.animation = 'none';
+                fuelDisplay.offsetHeight;
+                fuelDisplay.style.animation = 'shake 0.35s ease';
             }
         }
         
@@ -1278,7 +1508,7 @@
                     <div class="lane"></div>
                     <div class="player-car" id="playerCar" style="top:135px">🚗</div>
                 </div>
-                <div style="font-size:24px;margin:10px">💰 金币: <span id="coinCount">0</span></div>
+                <div style="font-size:24px;margin:10px">${i18n[currentLang].raceCoins} <span id="coinCount">0</span></div>
                 <div class="race-controls">
                     <button class="race-btn" onclick="moveRace(-1)">⬆️</button>
                     <button class="race-btn" onclick="moveRace(1)">⬇️</button>
@@ -1338,30 +1568,33 @@
         
         function moveObstacles() {
             if (!gameState.running) return;
-            gameState.obstacles.forEach((obs, i) => {
-                const right = parseFloat(obs.style.right || -50) + 5;
+            const obsList = gameState.obstacles;
+            for (let i = obsList.length - 1; i >= 0; i--) {
+                const obs = obsList[i];
+                const right = parseFloat(obs.style.right || '-50') + 5;
                 obs.style.right = right + 'px';
                 
-                if (right > 250 && right < 320 && parseInt(obs.dataset.lane) === gameState.lane) {
+                if (right > 250 && right < 320 && parseInt(obs.dataset.lane, 10) === gameState.lane) {
                     if (obs.dataset.type === 'coin') {
                         gameState.score++;
                         document.getElementById('coinCount').textContent = gameState.score;
                         obs.remove();
-                        gameState.obstacles.splice(i, 1);
+                        obsList.splice(i, 1);
                     } else {
                         gameState.running = false;
                         clearInterval(gameState.interval);
                         clearInterval(gameState.moveInterval);
                         document.removeEventListener('keydown', raceKeyHandler);
                         showResult(gameState.score >= 5 ? 3 : gameState.score >= 3 ? 2 : 1);
+                        return;
                     }
                 }
                 
                 if (right > 350) {
                     obs.remove();
-                    gameState.obstacles.splice(i, 1);
+                    obsList.splice(i, 1);
                 }
-            });
+            }
             
             if (gameState.score >= 10) {
                 gameState.running = false;
@@ -1439,7 +1672,7 @@
                         <div class="wheel-slot" id="slot2"></div>
                         <div class="wheel-slot" id="slot3"></div>
                     </div>
-                    <div style="font-size:24px;margin:10px">已安装: <span id="wheelCount">0</span>/4</div>
+                    <div style="font-size:24px;margin:10px"><span id="wheelInstalledLabel"></span>: <span id="wheelCount">0</span><span id="wheelSuffix"></span></div>
                     <div class="wheels-tray">
                         <div class="wheel" onclick="addWheel()">⚫</div>
                         <div class="wheel" onclick="addWheel()">⚫</div>
@@ -1448,6 +1681,9 @@
                     </div>
                 </div>
             `;
+            const tr = i18n[currentLang];
+            document.getElementById('wheelInstalledLabel').textContent = tr.wheelsInstalled;
+            document.getElementById('wheelSuffix').textContent = tr.wheelsSuffix;
         }
         
         function addWheel() {
@@ -1478,55 +1714,183 @@
             createConfetti();
         }
         
-        // 关卡9: 汽车逃亡 (类似神庙逃亡)
+        // 关卡9: 汽车逃亡 — 道具、连击、阶段路况、组合障碍
+        function escapeLaneHitsObstacle(obs) {
+            const pl = gameState.lane;
+            if (obs.dataset.blockLanes) {
+                return obs.dataset.blockLanes.split(',').map(Number).includes(pl);
+            }
+            return parseInt(obs.dataset.lane, 10) === pl;
+        }
+        
+        function escapeShowToast(text) {
+            const el = document.getElementById('escapeToast');
+            if (!el) return;
+            el.textContent = text;
+            el.classList.add('escape-toast--show');
+            clearTimeout(gameState._escapeToastTimer);
+            gameState._escapeToastTimer = setTimeout(() => el.classList.remove('escape-toast--show'), 1500);
+        }
+        
+        function escapeFloatText(text, lane) {
+            const box = document.getElementById('escapeContainer');
+            if (!box) return;
+            const d = document.createElement('div');
+            d.className = 'escape-float';
+            d.textContent = text;
+            const lefts = ['15%', '45%', '75%'];
+            d.style.left = lefts[lane];
+            box.appendChild(d);
+            setTimeout(() => d.remove(), 900);
+        }
+        
+        function escapeUpdatePlayerShieldClass() {
+            const p = document.getElementById('escapePlayer');
+            if (!p) return;
+            if (gameState.shields > 0) p.classList.add('escape-player--shield');
+            else p.classList.remove('escape-player--shield');
+        }
+        
+        function escapeUpdateHud() {
+            const c = document.getElementById('escapeCombo');
+            const s = document.getElementById('escapeShieldHud');
+            if (c) c.textContent = String(gameState.combo || 0);
+            if (s) s.textContent = String(gameState.shields || 0);
+        }
+        
+        function escapeSpawnCoinRow() {
+            const road = document.getElementById('escapeRoad');
+            if (!road) return;
+            const positions = ['15%', '45%', '75%'];
+            const top = (-52 - Math.random() * 16) + 'px';
+            for (let lane = 0; lane < 3; lane++) {
+                const el = document.createElement('div');
+                el.className = 'escape-pickup';
+                el.textContent = '💰';
+                el.dataset.pickup = 'coin';
+                el.dataset.lane = String(lane);
+                el.style.left = positions[lane];
+                el.style.top = top;
+                road.appendChild(el);
+                gameState.pickups.push(el);
+            }
+        }
+        
+        function escapeSpawnDoubleBarrier() {
+            const road = document.getElementById('escapeRoad');
+            if (!road) return;
+            const patterns = [[0, 1], [1, 2], [0, 2]];
+            const pat = patterns[Math.floor(Math.random() * patterns.length)];
+            const positions = ['15%', '45%', '75%'];
+            const top = (-56 - Math.random() * 22) + 'px';
+            pat.forEach((lane) => {
+                const el = document.createElement('div');
+                el.className = 'escape-obstacle';
+                el.textContent = ['🚙', '🚕', '🚧', '🛢️'][Math.floor(Math.random() * 4)];
+                el.dataset.type = 'obstacle';
+                el.dataset.lane = String(lane);
+                el.style.left = positions[lane];
+                el.style.top = top;
+                road.appendChild(el);
+                gameState.obstacles.push(el);
+            });
+        }
+        
+        function escapeCollectPickup(el, kind, lane) {
+            const now = performance.now();
+            const ex = i18n[currentLang].escape;
+            if (kind === 'coin' || kind === 'bigcoin') {
+                if (now - (gameState.lastPickupTime || 0) < 2000) {
+                    gameState.combo = (gameState.combo || 0) + 1;
+                } else {
+                    gameState.combo = 1;
+                }
+                gameState.lastPickupTime = now;
+                gameState.maxCombo = Math.max(gameState.maxCombo || 0, gameState.combo);
+                let add = kind === 'bigcoin' ? 5 : 1;
+                if (gameState.combo >= 4) add += 2;
+                if (gameState.combo >= 8) add += 3;
+                gameState.score += add;
+                document.getElementById('escapeCoins').textContent = gameState.score;
+                if (kind === 'bigcoin') escapeShowToast(ex.toastBig);
+                if (gameState.combo >= 3) escapeFloatText(`${ex.comboLine}${gameState.combo}`, lane);
+                else escapeFloatText(`+${add}`, lane);
+                playClickSound();
+            } else if (kind === 'shield') {
+                gameState.shields = Math.min(2, (gameState.shields || 0) + 1);
+                escapeShowToast(ex.toastShield);
+                escapeFloatText(ex.floatShield, lane);
+                escapeUpdatePlayerShieldClass();
+                playClickSound();
+            } else if (kind === 'boost') {
+                gameState.boostEnd = now + 3200;
+                escapeShowToast(ex.toastBoost);
+                escapeFloatText(ex.floatBoost, lane);
+                playClickSound();
+            }
+            escapeUpdateHud();
+            el.remove();
+            const idx = gameState.pickups.indexOf(el);
+            if (idx !== -1) gameState.pickups.splice(idx, 1);
+        }
+        
         function initEscape(area) {
-            gameState.lane = 1; // 0=左, 1=中, 2=右
+            const ex = i18n[currentLang].escape;
+            gameState.lane = 1;
             gameState.score = 0;
             gameState.distance = 0;
             gameState.speed = 5;
             gameState.obstacles = [];
-            gameState.coins = [];
+            gameState.pickups = [];
             gameState.running = true;
-            gameState.paused = false;
+            gameState.shields = 0;
+            gameState.boostEnd = 0;
+            gameState.combo = 0;
+            gameState.maxCombo = 0;
+            gameState.lastPickupTime = 0;
+            gameState.escapePhase = 0;
+            gameState.spawnAcc = 0;
+            gameState._lastEscapeT = 0;
             
             area.innerHTML = `
                 <div class="game-title">🏃 ${i18n[currentLang].levels[8].name}</div>
                 <div class="game-instruction">${i18n[currentLang].levels[8].instruction}</div>
                 <div class="escape-container" id="escapeContainer">
-                    <div class="escape-road">
-                        <div class="road-line" style="left:33%"></div>
-                        <div class="road-line" style="left:66%"></div>
-                        <div class="escape-player" id="escapePlayer">🚗</div>
+                    <div class="escape-phase-badge" id="escapePhaseBadge">${ex.phase0}</div>
+                    <div class="escape-road-wrap">
+                        <div class="escape-scenery" aria-hidden="true"><div class="escape-scenery-inner" id="sceneryL">🌲🌳🌲🌳🌲🌳🌲🌳</div></div>
+                        <div class="escape-road" id="escapeRoad" data-offset="0">
+                            <div class="road-line" style="left:33%"></div>
+                            <div class="road-line" style="left:66%"></div>
+                            <div class="escape-player" id="escapePlayer">🚗</div>
+                        </div>
+                        <div class="escape-scenery" aria-hidden="true"><div class="escape-scenery-inner" id="sceneryR">🏠🌳🏠🌲🏠🌳🏠🌲</div></div>
                     </div>
+                    <div class="escape-toast" id="escapeToast"></div>
                 </div>
                 <div class="escape-stats">
-                    <span>💰 <span id="escapeCoins">0</span></span>
-                    <span>📏 <span id="escapeDistance">0</span>m</span>
+                    <span class="escape-stat-pill">💰 <span id="escapeCoins">0</span></span>
+                    <span class="escape-stat-pill">📏 <span id="escapeDistance">0</span>m</span>
+                    <span class="escape-stat-pill">${ex.statCombo} <span id="escapeCombo">0</span></span>
+                    <span class="escape-stat-pill">${ex.statShield} <span id="escapeShieldHud">0</span></span>
                 </div>
                 <div class="escape-controls">
-                    <button class="escape-btn" ontouchstart="escapeMove(-1)" onclick="escapeMove(-1)">⬅️</button>
-                    <button class="escape-btn" ontouchstart="escapeMove(1)" onclick="escapeMove(1)">➡️</button>
+                    <button type="button" class="escape-btn" ontouchstart="escapeMove(-1)" onclick="escapeMove(-1)">⬅️</button>
+                    <button type="button" class="escape-btn" ontouchstart="escapeMove(1)" onclick="escapeMove(1)">➡️</button>
                 </div>
             `;
             
-            // 触摸滑动支持
             const container = document.getElementById('escapeContainer');
             let touchStartX = 0;
             container.addEventListener('touchstart', (e) => {
                 touchStartX = e.touches[0].clientX;
-            }, {passive: true});
+            }, { passive: true });
             container.addEventListener('touchend', (e) => {
                 const diff = e.changedTouches[0].clientX - touchStartX;
-                if (Math.abs(diff) > 30) {
-                    escapeMove(diff > 0 ? 1 : -1);
-                }
-            }, {passive: true});
+                if (Math.abs(diff) > 30) escapeMove(diff > 0 ? 1 : -1);
+            }, { passive: true });
             
-            // 键盘支持
             document.addEventListener('keydown', escapeKeyHandler);
-            
-            // 启动游戏循环
-            gameState.spawnTimer = setInterval(escapeSpawn, 800);
             gameState.gameLoop = requestAnimationFrame(escapeLoop);
         }
         
@@ -1540,93 +1904,184 @@
             if (!gameState.running) return;
             gameState.lane = Math.max(0, Math.min(2, gameState.lane + dir));
             const player = document.getElementById('escapePlayer');
+            if (!player) return;
             const positions = ['15%', '45%', '75%'];
             player.style.left = positions[gameState.lane];
+            player.classList.remove('escape-player--tiltL', 'escape-player--tiltR');
+            player.classList.add(dir < 0 ? 'escape-player--tiltL' : 'escape-player--tiltR');
+            escapeUpdatePlayerShieldClass();
+            clearTimeout(gameState._escapeTiltTimer);
+            gameState._escapeTiltTimer = setTimeout(() => {
+                const p = document.getElementById('escapePlayer');
+                if (p) p.classList.remove('escape-player--tiltL', 'escape-player--tiltR');
+            }, 200);
         }
         
         function escapeSpawn() {
             if (!gameState.running) return;
-            const road = document.querySelector('.escape-road');
+            const road = document.getElementById('escapeRoad');
+            if (!road) return;
+            const totalThings = gameState.obstacles.length + gameState.pickups.length;
+            const r = Math.random();
+            
+            if (r < 0.085 && totalThings < 10) {
+                escapeSpawnCoinRow();
+                return;
+            }
+            if (r < 0.165 && totalThings < 9) {
+                escapeSpawnDoubleBarrier();
+                return;
+            }
+            
             const lane = Math.floor(Math.random() * 3);
-            const isCoin = Math.random() > 0.6;
+            const positions = ['15%', '45%', '75%'];
+            const top = (-54 - Math.random() * 28) + 'px';
+            const r2 = Math.random();
+            let kind = 'obstacle';
+            if (r2 < 0.33) kind = 'coin';
+            else if (r2 < 0.43) kind = 'bigcoin';
+            else if (r2 < 0.50) kind = 'shield';
+            else if (r2 < 0.57) kind = 'boost';
+            
+            if (kind === 'obstacle') {
+                if (Math.random() < 0.11) {
+                    const pairs = ['0,1', '1,2', '0,2'];
+                    const bl = pairs[Math.floor(Math.random() * pairs.length)];
+                    const el = document.createElement('div');
+                    el.className = 'escape-obstacle escape-obstacle--wide';
+                    el.textContent = '🚛';
+                    el.dataset.type = 'obstacle';
+                    el.dataset.lane = '1';
+                    el.dataset.blockLanes = bl;
+                    el.style.left = '45%';
+                    el.style.top = top;
+                    road.appendChild(el);
+                    gameState.obstacles.push(el);
+                    return;
+                }
+                const el = document.createElement('div');
+                el.className = 'escape-obstacle';
+                el.textContent = ['🚙', '🚕', '🚐', '🚓', '🛻', '🚘', '🚖', '🚧', '🛢️'][Math.floor(Math.random() * 9)];
+                el.dataset.type = 'obstacle';
+                el.dataset.lane = String(lane);
+                el.style.left = positions[lane];
+                el.style.top = top;
+                road.appendChild(el);
+                gameState.obstacles.push(el);
+                return;
+            }
             
             const el = document.createElement('div');
-            el.className = isCoin ? 'escape-coin' : 'escape-obstacle';
-            
-            if (isCoin) {
-                el.innerHTML = '💰';
-                el.dataset.type = 'coin';
-            } else {
-                const obstacles = ['🚙', '🚕', '🚐', '🚛', '🚓', '🛻', '🚘', '🚖', '🚚', '🚜', '🚧', '🛢️'];
-                el.innerHTML = obstacles[Math.floor(Math.random() * obstacles.length)];
-                el.dataset.type = 'obstacle';
-            }
-            
-            const positions = ['15%', '45%', '75%'];
+            el.className = 'escape-pickup' + (kind === 'bigcoin' ? ' escape-pickup--big' : '') + (kind === 'shield' || kind === 'boost' ? ' escape-pickup--gear' : '');
+            el.textContent = kind === 'bigcoin' ? '💎' : kind === 'shield' ? '🛡️' : kind === 'boost' ? '🚀' : '💰';
+            el.dataset.pickup = kind;
+            el.dataset.lane = String(lane);
             el.style.left = positions[lane];
-            el.style.top = '-60px';
-            el.dataset.lane = lane;
+            el.style.top = top;
             road.appendChild(el);
-            
-            if (isCoin) {
-                gameState.coins.push(el);
-            } else {
-                gameState.obstacles.push(el);
-            }
+            gameState.pickups.push(el);
         }
         
         function escapeLoop() {
             if (!gameState.running) return;
             
-            const speed = gameState.speed;
-            gameState.distance += speed / 10;
+            const now = performance.now();
+            if (!gameState._lastEscapeT) gameState._lastEscapeT = now;
+            const dt = Math.min(40, now - gameState._lastEscapeT);
+            gameState._lastEscapeT = now;
+            
+            gameState.spawnAcc = (gameState.spawnAcc || 0) + dt;
+            const boosted = now < (gameState.boostEnd || 0);
+            let baseInterval = Math.max(320, 840 - gameState.distance * 0.38);
+            if (gameState.escapePhase >= 1) baseInterval *= 0.92;
+            if (gameState.escapePhase >= 2) baseInterval *= 0.9;
+            const spawnInterval = boosted ? baseInterval * 0.82 : baseInterval;
+            if (gameState.spawnAcc >= spawnInterval) {
+                gameState.spawnAcc = 0;
+                escapeSpawn();
+            }
+            
+            if (gameState.distance > 45 && gameState.speed < 8) gameState.speed = 5 + gameState.distance / 95;
+            if (gameState.speed > 13) gameState.speed = 13;
+            const effSpeed = gameState.speed * (boosted ? 1.38 : 1);
+            
+            gameState.distance += effSpeed / 10;
             document.getElementById('escapeDistance').textContent = Math.floor(gameState.distance);
             
-            // 逐渐加速
-            if (gameState.distance > 50 && gameState.speed < 8) gameState.speed = 5 + gameState.distance / 100;
-            if (gameState.speed > 12) gameState.speed = 12;
+            const road = document.getElementById('escapeRoad');
+            const ex = i18n[currentLang].escape;
+            const badge = document.getElementById('escapePhaseBadge');
+            const d = Math.floor(gameState.distance);
+            if (d >= 95 && gameState.escapePhase < 1) {
+                gameState.escapePhase = 1;
+                if (road) road.classList.add('escape-road--country');
+                if (badge) badge.textContent = ex.phase1;
+                escapeShowToast(ex.toastCountry);
+            }
+            if (d >= 230 && gameState.escapePhase < 2) {
+                gameState.escapePhase = 2;
+                if (road) road.classList.add('escape-road--night');
+                if (badge) badge.textContent = ex.phase2;
+                escapeShowToast(ex.toastNight);
+            }
+            if (road) {
+                if (boosted) road.classList.add('escape-road--boost');
+                else road.classList.remove('escape-road--boost');
+                const currentBg = parseFloat(road.dataset.offset || '0');
+                road.dataset.offset = String((currentBg + effSpeed) % 50);
+                road.style.backgroundPosition = `0 ${currentBg}px`;
+            }
             
-            // 移动障碍物
-            gameState.obstacles.forEach((obs, i) => {
-                const top = parseFloat(obs.style.top) + speed;
+            if (now - (gameState.lastPickupTime || 0) > 2400 && (gameState.combo || 0) > 0) {
+                gameState.combo = 0;
+                escapeUpdateHud();
+            }
+            
+            const roadEl = document.getElementById('escapeRoad');
+            const ch = roadEl ? roadEl.offsetHeight : 280;
+            const hitYMin = ch * 0.38;
+            const hitYMax = ch * 0.92;
+            const despawnY = ch + 40;
+            
+            const obstacles = gameState.obstacles;
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const obs = obstacles[i];
+                const top = parseFloat(obs.style.top) + effSpeed;
                 obs.style.top = top + 'px';
                 
-                // 碰撞检测
-                if (top > 200 && top < 320 && parseInt(obs.dataset.lane) === gameState.lane) {
-                    escapeGameOver();
-                    return;
-                }
-                
-                if (top > 400) {
+                if (top > hitYMin && top < hitYMax && escapeLaneHitsObstacle(obs)) {
+                    if (gameState.shields > 0) {
+                        gameState.shields--;
+                        escapeUpdatePlayerShieldClass();
+                        escapeShowToast(ex.toastShieldHit);
+                        obs.remove();
+                        obstacles.splice(i, 1);
+                        playClickSound();
+                        escapeUpdateHud();
+                    } else {
+                        escapeGameOver();
+                        return;
+                    }
+                } else if (top > despawnY) {
                     obs.remove();
-                    gameState.obstacles.splice(i, 1);
+                    obstacles.splice(i, 1);
                 }
-            });
+            }
             
-            // 移动金币
-            gameState.coins.forEach((coin, i) => {
-                const top = parseFloat(coin.style.top) + speed;
-                coin.style.top = top + 'px';
+            const pickups = gameState.pickups;
+            for (let i = pickups.length - 1; i >= 0; i--) {
+                const pk = pickups[i];
+                const top = parseFloat(pk.style.top) + effSpeed;
+                pk.style.top = top + 'px';
+                const lane = parseInt(pk.dataset.lane, 10);
                 
-                // 收集检测
-                if (top > 200 && top < 320 && parseInt(coin.dataset.lane) === gameState.lane) {
-                    gameState.score++;
-                    document.getElementById('escapeCoins').textContent = gameState.score;
-                    coin.remove();
-                    gameState.coins.splice(i, 1);
+                if (top > hitYMin && top < hitYMax && lane === gameState.lane) {
+                    escapeCollectPickup(pk, pk.dataset.pickup, lane);
+                } else if (top > despawnY) {
+                    pk.remove();
+                    pickups.splice(i, 1);
                 }
-                
-                if (top > 400) {
-                    coin.remove();
-                    gameState.coins.splice(i, 1);
-                }
-            });
-            
-            // 路面动画
-            const road = document.querySelector('.escape-road');
-            const currentBg = parseFloat(road.dataset.offset || 0);
-            road.dataset.offset = (currentBg + speed) % 50;
-            road.style.backgroundPosition = `0 ${currentBg}px`;
+            }
             
             gameState.gameLoop = requestAnimationFrame(escapeLoop);
         }
@@ -1637,9 +2092,9 @@
             cancelAnimationFrame(gameState.gameLoop);
             document.removeEventListener('keydown', escapeKeyHandler);
             
-            // 根据距离和金币计算星星
-            const totalScore = gameState.score + Math.floor(gameState.distance / 50);
-            const stars = totalScore >= 15 ? 3 : totalScore >= 8 ? 2 : 1;
+            const comboBonus = Math.floor((gameState.maxCombo || 0) / 5);
+            const totalScore = gameState.score + Math.floor(gameState.distance / 48) + comboBonus;
+            const stars = totalScore >= 22 ? 3 : totalScore >= 12 ? 2 : 1;
             showResult(stars);
         }
         
@@ -1778,7 +2233,7 @@
                     </div>
                 </div>
                 <div class="crossing-progress"><div class="progress-bar" id="progressBar"></div></div>
-                <button class="crossing-btn" onclick="moveForward()">走一步 ➡️</button>
+                <button class="crossing-btn" onclick="moveForward()">${i18n[currentLang].crossingStep}</button>
             `;
             gameState.carInterval = setInterval(moveTraffic, 30);
         }
@@ -1824,6 +2279,7 @@
         function showResult(stars) {
             const t = i18n[currentLang];
             levelStars[currentLevel-1] = Math.max(levelStars[currentLevel-1], stars);
+            saveProgress();
             
             const overlay = document.getElementById('resultOverlay');
             document.getElementById('resultIcon').textContent = stars === 3 ? '🎉' : stars === 2 ? '😊' : '👍';
@@ -1865,6 +2321,7 @@
         document.head.appendChild(style);
         
         // 初始化
+        loadProgress();
         initMenu();
     </script>
 </body>
