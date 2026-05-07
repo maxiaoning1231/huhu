@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
-    <title>🚗 小汽车大冒险</title>
+    <title>🚗 小汽车大冒险 | Car Adventure</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -709,6 +709,28 @@
             }
         }
         
+        /* 音乐和语言控制 */
+        .controls-bar {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            touch-action: manipulation;
+        }
+        .control-btn:active { transform: scale(0.95); }
+        
         /* 彩纸 */
         .confetti {
             position: fixed;
@@ -724,11 +746,17 @@
     </style>
 </head>
 <body>
+    <!-- 控制栏 -->
+    <div class="controls-bar">
+        <button class="control-btn" id="musicBtn" onclick="toggleMusic()">🔇</button>
+        <button class="control-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    </div>
+    
     <!-- 主菜单 -->
     <div class="menu-screen" id="menuScreen">
-        <div class="road-decoration">🛣️🚗🚕🚙🏎️🚐🛣️</div>
+        <div class="road-decoration">🛣️🚗🚕🚙🏎️🚐🚓🛻🚘🚖🚛🛣️</div>
         <h1 class="menu-title">🚗 小汽车大冒险</h1>
-        <div class="stars-display">⭐ 总星星: <span id="totalStars">0</span>/36</div>
+        <div class="stars-display" id="starsDisplay">⭐ 总星星: <span id="totalStars">0</span>/36</div>
         <div class="level-grid" id="levelGrid"></div>
         <div class="road-decoration">🏁🏆🎉🎊🎈🏁</div>
     </div>
@@ -736,9 +764,9 @@
     <!-- 游戏界面 -->
     <div class="game-screen" id="gameScreen">
         <div class="game-header">
-            <button class="back-btn" onclick="backToMenu()">← 返回</button>
+            <button class="back-btn" id="backBtn" onclick="backToMenu()">← 返回</button>
             <span id="levelInfo">第1关</span>
-            <button class="restart-btn" onclick="restartLevel()">🔄 重来</button>
+            <button class="restart-btn" id="restartBtn" onclick="restartLevel()">🔄 重来</button>
         </div>
         <div class="game-area" id="gameArea"></div>
     </div>
@@ -749,41 +777,197 @@
             <div class="result-icon" id="resultIcon">🎉</div>
             <div class="result-text" id="resultText">太棒了!</div>
             <div class="result-stars" id="resultStars">⭐⭐⭐</div>
-            <button class="result-btn" onclick="nextLevel()">下一关 →</button>
-            <button class="result-btn" style="background:#FF9800" onclick="backToMenu()">返回菜单</button>
+            <button class="result-btn" id="nextLevelBtn" onclick="nextLevel()">下一关 →</button>
+            <button class="result-btn" id="backMenuBtn" style="background:#FF9800" onclick="backToMenu()">返回菜单</button>
         </div>
     </div>
 
     <script>
+        // 语言设置
+        let currentLang = 'zh'; // 'zh' 或 'en'
+        
+        const i18n = {
+            zh: {
+                title: '🚗 小汽车大冒险',
+                totalStars: '⭐ 总星星:',
+                back: '← 返回',
+                restart: '🔄 重来',
+                level: '第',
+                levelSuffix: '关',
+                nextLevel: '下一关 →',
+                backMenu: '返回菜单',
+                awesome: '太棒了!',
+                good: '不错哦!',
+                keepGoing: '继续加油!',
+                congrats: '恭喜通关!',
+                youAreMaster: '你是小汽车达人!',
+                collected: '收集了',
+                stars: '颗星星!',
+                levels: [
+                    { name: '停车场', instruction: '把小车停到相同颜色的车位!' },
+                    { name: '红绿灯', instruction: '看灯行动!' },
+                    { name: '加油站', instruction: '数一数，加几滴油?' },
+                    { name: '小汽车迷宫', instruction: '帮小车找到回家的路!' },
+                    { name: '小汽车赛道', instruction: '上下躲避车辆，收集金币!' },
+                    { name: '洗车房', instruction: '点击泥巴把车洗干净!' },
+                    { name: '修车厂', instruction: '给小车装上轮子!' },
+                    { name: '终点站', instruction: '' },
+                    { name: '汽车逃亡', instruction: '左右躲避障碍，收集金币!' },
+                    { name: '汽车配对', instruction: '找到相同的汽车!' },
+                    { name: '数汽车', instruction: '数一数有几辆' },
+                    { name: '过马路', instruction: '等车过去，点按钮前进!' }
+                ]
+            },
+            en: {
+                title: '🚗 Car Adventure',
+                totalStars: '⭐ Stars:',
+                back: '← Back',
+                restart: '🔄 Restart',
+                level: 'Level ',
+                levelSuffix: '',
+                nextLevel: 'Next Level →',
+                backMenu: 'Menu',
+                awesome: 'Awesome!',
+                good: 'Good job!',
+                keepGoing: 'Keep trying!',
+                congrats: 'Congratulations!',
+                youAreMaster: 'You are a Car Master!',
+                collected: 'Collected',
+                stars: 'stars!',
+                levels: [
+                    { name: 'Parking', instruction: 'Park cars in matching spots!' },
+                    { name: 'Traffic Light', instruction: 'Watch the light!' },
+                    { name: 'Gas Station', instruction: 'Count the drops!' },
+                    { name: 'Maze', instruction: 'Help the car get home!' },
+                    { name: 'Race Track', instruction: 'Dodge cars, collect coins!' },
+                    { name: 'Car Wash', instruction: 'Clean the mud!' },
+                    { name: 'Repair Shop', instruction: 'Put on the wheels!' },
+                    { name: 'Finish Line', instruction: '' },
+                    { name: 'Car Escape', instruction: 'Dodge obstacles, collect coins!' },
+                    { name: 'Car Match', instruction: 'Find matching cars!' },
+                    { name: 'Count Cars', instruction: 'Count the cars!' },
+                    { name: 'Cross Road', instruction: 'Wait and cross safely!' }
+                ]
+            }
+        };
+        
+        function toggleLang() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.getElementById('langBtn').textContent = currentLang === 'zh' ? 'EN' : '中';
+            updateLanguage();
+        }
+        
+        function updateLanguage() {
+            const t = i18n[currentLang];
+            document.title = currentLang === 'zh' ? '🚗 小汽车大冒险' : '🚗 Car Adventure';
+            document.querySelector('.menu-title').textContent = t.title;
+            document.getElementById('backBtn').textContent = t.back;
+            document.getElementById('restartBtn').textContent = t.restart;
+            document.getElementById('nextLevelBtn').textContent = t.nextLevel;
+            document.getElementById('backMenuBtn').textContent = t.backMenu;
+            initMenu();
+        }
+        
+        // 背景音乐 - 使用 Web Audio API
+        let audioCtx = null;
+        let musicPlaying = false;
+        let musicInterval = null;
+        
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playNote(freq, duration, time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+        
+        function playMelody() {
+            if (!musicPlaying) return;
+            const notes = [
+                {f: 523, d: 0.2}, {f: 587, d: 0.2}, {f: 659, d: 0.2}, {f: 698, d: 0.2},
+                {f: 784, d: 0.4}, {f: 784, d: 0.4},
+                {f: 880, d: 0.2}, {f: 880, d: 0.2}, {f: 880, d: 0.2}, {f: 880, d: 0.2},
+                {f: 784, d: 0.8},
+                {f: 880, d: 0.2}, {f: 880, d: 0.2}, {f: 880, d: 0.2}, {f: 880, d: 0.2},
+                {f: 784, d: 0.8},
+                {f: 659, d: 0.2}, {f: 659, d: 0.2}, {f: 659, d: 0.2}, {f: 659, d: 0.2},
+                {f: 698, d: 0.4}, {f: 698, d: 0.4},
+                {f: 587, d: 0.2}, {f: 587, d: 0.2}, {f: 587, d: 0.2}, {f: 587, d: 0.2},
+                {f: 523, d: 0.8}
+            ];
+            let time = audioCtx.currentTime;
+            notes.forEach(note => {
+                playNote(note.f, note.d, time);
+                time += note.d;
+            });
+        }
+        
+        function toggleMusic() {
+            initAudio();
+            musicPlaying = !musicPlaying;
+            document.getElementById('musicBtn').textContent = musicPlaying ? '🔊' : '🔇';
+            if (musicPlaying) {
+                playMelody();
+                musicInterval = setInterval(playMelody, 6000);
+            } else {
+                clearInterval(musicInterval);
+            }
+        }
+        
+        function playSuccessSound() {
+            initAudio();
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((f, i) => {
+                setTimeout(() => playNote(f, 0.2, audioCtx.currentTime), i * 100);
+            });
+        }
+        
+        function playClickSound() {
+            initAudio();
+            playNote(800, 0.1, audioCtx.currentTime);
+        }
+        
         // 游戏状态
         let currentLevel = 1;
         let levelStars = [0,0,0,0,0,0,0,0,0,0,0,0];
         let gameState = {};
         
         const levels = [
-            { name: '停车场', icon: '🅿️', color: '#4CAF50' },
-            { name: '红绿灯', icon: '🚦', color: '#f44336' },
-            { name: '加油站', icon: '⛽', color: '#FF9800' },
-            { name: '迷宫', icon: '🛣️', color: '#9C27B0' },
-            { name: '赛道', icon: '🏎️', color: '#2196F3' },
-            { name: '洗车房', icon: '🚿', color: '#00BCD4' },
-            { name: '修车厂', icon: '🔧', color: '#795548' },
-            { name: '终点站', icon: '🏆', color: '#FFD700' },
-            { name: '汽车逃亡', icon: '🏃', color: '#E91E63' },
-            { name: '汽车配对', icon: '🎯', color: '#673AB7' },
-            { name: '数汽车', icon: '🔢', color: '#009688' },
-            { name: '过马路', icon: '🚶', color: '#FF5722' }
+            { icon: '🅿️', color: '#4CAF50' },
+            { icon: '🚦', color: '#f44336' },
+            { icon: '⛽', color: '#FF9800' },
+            { icon: '🛣️', color: '#9C27B0' },
+            { icon: '🏎️', color: '#2196F3' },
+            { icon: '🚿', color: '#00BCD4' },
+            { icon: '🔧', color: '#795548' },
+            { icon: '🏆', color: '#FFD700' },
+            { icon: '🏃', color: '#E91E63' },
+            { icon: '🎯', color: '#673AB7' },
+            { icon: '🔢', color: '#009688' },
+            { icon: '🚶', color: '#FF5722' }
         ];
         
         // 初始化菜单
         function initMenu() {
+            const t = i18n[currentLang];
             const grid = document.getElementById('levelGrid');
             grid.innerHTML = '';
             levels.forEach((level, i) => {
                 const btn = document.createElement('button');
                 btn.className = 'level-btn';
                 btn.style.background = level.color;
-                btn.innerHTML = `${level.icon}<span class="level-num">${i+1}.${level.name}</span>`;
+                btn.innerHTML = `${level.icon}<span class="level-num">${i+1}. ${t.levels[i].name}</span>`;
                 btn.onclick = () => startLevel(i + 1);
                 grid.appendChild(btn);
             });
@@ -791,19 +975,22 @@
         }
         
         function updateTotalStars() {
-            document.getElementById('totalStars').textContent = levelStars.reduce((a,b) => a+b, 0);
+            const t = i18n[currentLang];
+            document.getElementById('totalStars').textContent = t.totalStars + ' ' + levelStars.reduce((a,b) => a+b, 0) + '/36';
         }
         
         function startLevel(level) {
-            // 所有关卡已解锁，无需检查
+            const t = i18n[currentLang];
             currentLevel = level;
             document.getElementById('menuScreen').style.display = 'none';
-    document.getElementById('gameScreen').style.display = 'block';
-            document.getElementById('levelInfo').textContent = `第${level}关: ${levels[level-1].name}`;
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('levelInfo').textContent = `${t.level}${level}${t.levelSuffix}: ${t.levels[level-1].name}`;
             loadLevel(level);
+            playClickSound();
         }
         
         function backToMenu() {
+            playClickSound();
             document.getElementById('gameScreen').style.display = 'none';
             document.getElementById('menuScreen').style.display = 'block';
             document.getElementById('resultOverlay').style.display = 'none';
@@ -811,6 +998,7 @@
         }
         
         function restartLevel() {
+            playClickSound();
             loadLevel(currentLevel);
         }
         
@@ -835,18 +1023,19 @@
         
         // 关卡1: 停车场
         function initParking(area) {
+            const isZh = currentLang === 'zh';
             const colors = [
-                {name:'红',bg:'#ff4444',car:'🚗'},
-                {name:'蓝',bg:'#4444ff',car:'🚙'},
-                {name:'黄',bg:'#ffdd00',car:'🚕'},
-                {name:'绿',bg:'#44ff44',car:'🚐'}
+                {name: isZh ? '红' : 'Red', bg:'#ff4444', car:'🚗'},
+                {name: isZh ? '蓝' : 'Blue', bg:'#4444ff', car:'🚙'},
+                {name: isZh ? '黄' : 'Yellow', bg:'#ffdd00', car:'🚕'},
+                {name: isZh ? '绿' : 'Green', bg:'#44ff44', car:'🚐'}
             ];
             gameState.matched = 0;
             gameState.selected = null;
             
             area.innerHTML = `
-                <div class="game-title">🅿️ 停车场</div>
-                <div class="game-instruction">把小车停到相同颜色的车位!</div>
+                <div class="game-title">🅿️ ${i18n[currentLang].levels[0].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[0].instruction}</div>
                 <div class="parking-area" id="cars"></div>
                 <div style="font-size:40px;margin:20px">⬇️</div>
                 <div class="parking-area" id="spots"></div>
@@ -907,16 +1096,16 @@
             gameState.round = 0;
             
             area.innerHTML = `
-                <div class="game-title">🚦 红绿灯</div>
-                <div class="game-instruction">看灯行动!</div>
+                <div class="game-title">🚦 ${i18n[currentLang].levels[1].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[1].instruction}</div>
                 <div class="traffic-light">
                     <div class="light red active" id="redLight"></div>
                     <div class="light yellow" id="yellowLight"></div>
                     <div class="light green" id="greenLight"></div>
                 </div>
                 <div class="traffic-btns">
-                    <button class="traffic-btn go-btn" onclick="trafficAction('go')">🚗 出发!</button>
-                    <button class="traffic-btn stop-btn" onclick="trafficAction('stop')">🛑 停车!</button>
+                    <button class="traffic-btn go-btn" onclick="trafficAction('go')">🚗 ${currentLang === 'zh' ? '出发!' : 'Go!'}</button>
+                    <button class="traffic-btn stop-btn" onclick="trafficAction('stop')">🛑 ${currentLang === 'zh' ? '停车!' : 'Stop!'}</button>
                 </div>
             `;
             changeLight();
@@ -956,12 +1145,12 @@
             gameState.filled = 0;
             
             area.innerHTML = `
-                <div class="game-title">⛽ 加油站</div>
-                <div class="game-instruction">数一数，加几滴油?</div>
+                <div class="game-title">⛽ ${i18n[currentLang].levels[2].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[2].instruction}</div>
                 <div class="gas-station">
                     <div class="car-to-fuel">🚗</div>
                     <div class="fuel-count" id="fuelDisplay">💧</div>
-                    <div style="font-size:24px;margin:10px">需要加 <b style="color:red;font-size:36px">${gameState.target}</b> 滴油</div>
+                    <div style="font-size:24px;margin:10px">${currentLang === 'zh' ? '需要加' : 'Add'} <b style="color:red;font-size:36px">${gameState.target}</b> ${currentLang === 'zh' ? '滴油' : 'drops'}</div>
                     <div class="number-btns" id="numBtns"></div>
                 </div>
             `;
@@ -1002,8 +1191,8 @@
             gameState.pos = {x:0, y:0};
             
             area.innerHTML = `
-                <div class="game-title">🛣️ 小汽车迷宫</div>
-                <div class="game-instruction">帮小车找到回家的路!</div>
+                <div class="game-title">🛣️ ${i18n[currentLang].levels[3].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[3].instruction}</div>
                 <div class="maze-container" id="mazeContainer">
                     <div class="maze" id="mazeGrid"></div>
                 </div>
@@ -1081,8 +1270,8 @@
             gameState.running = true;
             
             area.innerHTML = `
-                <div class="game-title">🏎️ 小汽车赛道</div>
-                <div class="game-instruction">上下躲避车辆，收集金币!</div>
+                <div class="game-title">🏎️ ${i18n[currentLang].levels[4].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[4].instruction}</div>
                 <div class="race-track" id="raceTrack">
                     <div class="lane"></div>
                     <div class="lane"></div>
@@ -1137,7 +1326,7 @@
             const lane = Math.floor(Math.random() * 3);
             const el = document.createElement('div');
             el.className = isCoin ? 'coin' : 'obstacle';
-            el.innerHTML = isCoin ? '💰' : ['🚗','🚕','🚙','🚐'][Math.floor(Math.random()*4)];
+            el.innerHTML = isCoin ? '💰' : ['🚗','🚕','🚙','🚐','🚓','🛻','🚘','🚖','🚛'][Math.floor(Math.random()*9)];
             const trackHeight = document.getElementById('raceTrack').offsetHeight;
             const laneHeight = trackHeight / 3;
             el.style.top = (lane * laneHeight + laneHeight/2 - 20) + 'px';
@@ -1190,12 +1379,12 @@
             gameState.totalMud = 6;
             
             area.innerHTML = `
-                <div class="game-title">🚿 洗车房</div>
-                <div class="game-instruction">点击泥巴把车洗干净!</div>
+                <div class="game-title">🚿 ${i18n[currentLang].levels[5].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[5].instruction}</div>
                 <div class="dirty-car" id="dirtyCar">
                     🚗
                 </div>
-                <div style="font-size:24px;margin:10px">已清洗: <span id="cleanCount">0</span>/${gameState.totalMud}</div>
+                <div style="font-size:24px;margin:10px">${currentLang === 'zh' ? '已清洗' : 'Cleaned'}: <span id="cleanCount">0</span>/${gameState.totalMud}</div>
             `;
             
             const car = document.getElementById('dirtyCar');
@@ -1240,8 +1429,8 @@
             gameState.wheels = 0;
             
             area.innerHTML = `
-                <div class="game-title">🔧 修车厂</div>
-                <div class="game-instruction">给小车装上轮子!</div>
+                <div class="game-title">🔧 ${i18n[currentLang].levels[6].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[6].instruction}</div>
                 <div class="repair-shop">
                     <div class="car-on-lift">🚗</div>
                     <div class="wheel-slots">
@@ -1277,13 +1466,13 @@
         // 关卡8: 终点
         function initFinish(area) {
             area.innerHTML = `
-                <div class="game-title">🏆 恭喜通关!</div>
+                <div class="game-title">🏆 ${i18n[currentLang].congrats}</div>
                 <div class="finish-line">
                     <div class="trophy">🏆</div>
-                    <div class="congrats-text">你是小汽车达人!</div>
+                    <div class="congrats-text">${i18n[currentLang].youAreMaster}</div>
                     <div class="all-stars">${'⭐'.repeat(levelStars.reduce((a,b)=>a+b,0))}</div>
-                    <div style="font-size:24px;margin:20px">收集了 <b>${levelStars.reduce((a,b)=>a+b,0)}</b> 颗星星!</div>
-                    <div style="font-size:60px;margin:20px">🚗🚕🚙🏎️🚐🚓</div>
+                    <div style="font-size:24px;margin:20px">${i18n[currentLang].collected} <b>${levelStars.reduce((a,b)=>a+b,0)}</b> ${i18n[currentLang].stars}</div>
+                    <div style="font-size:60px;margin:20px">🚗🚕🚙🏎️🚐🚓🛻🚘🚖🚛🚚🚜</div>
                 </div>
             `;
             createConfetti();
@@ -1301,8 +1490,8 @@
             gameState.paused = false;
             
             area.innerHTML = `
-                <div class="game-title">🏃 汽车逃亡</div>
-                <div class="game-instruction">左右躲避障碍，收集金币!</div>
+                <div class="game-title">🏃 ${i18n[currentLang].levels[8].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[8].instruction}</div>
                 <div class="escape-container" id="escapeContainer">
                     <div class="escape-road">
                         <div class="road-line" style="left:33%"></div>
@@ -1368,7 +1557,7 @@
                 el.innerHTML = '💰';
                 el.dataset.type = 'coin';
             } else {
-                const obstacles = ['🚙', '🚕', '🚐', '🚛', '🚧', '🛢️'];
+                const obstacles = ['🚙', '🚕', '🚐', '🚛', '🚓', '🛻', '🚘', '🚖', '🚚', '🚜', '🚧', '🛢️'];
                 el.innerHTML = obstacles[Math.floor(Math.random() * obstacles.length)];
                 el.dataset.type = 'obstacle';
             }
@@ -1456,7 +1645,10 @@
         
         // 关卡10: 汽车配对 (连连看)
         function initMatching(area) {
-            const cars = ['🚗', '🚙', '🚕', '🚐', '🏎️', '🚓'];
+            // 随机选择6种汽车
+            const allCars = ['🚗', '🚙', '🚕', '🚐', '🏎️', '🚓', '🛻', '🚘', '🚖', '🚛', '🚚', '🚜'];
+            const shuffled = allCars.sort(() => Math.random() - 0.5);
+            const cars = shuffled.slice(0, 6);
             gameState.cards = [];
             gameState.flipped = [];
             gameState.matched = 0;
@@ -1469,8 +1661,8 @@
             }
             
             area.innerHTML = `
-                <div class="game-title">🎯 汽车配对</div>
-                <div class="game-instruction">找到相同的汽车!</div>
+                <div class="game-title">🎯 ${i18n[currentLang].levels[9].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[9].instruction}</div>
                 <div class="matching-grid" id="matchingGrid"></div>
             `;
             
@@ -1517,9 +1709,11 @@
         
         // 关卡11: 数汽车
         function initCounting(area) {
-            const types = [{e:'🚗',n:'小汽车'},{e:'🚙',n:'越野车'},{e:'🚕',n:'出租车'},{e:'🚐',n:'面包车'}];
+            const types = currentLang === 'zh' 
+                ? [{e:'🚗',n:'小汽车'},{e:'🚙',n:'越野车'},{e:'🚕',n:'出租车'},{e:'🚐',n:'面包车'},{e:'🏎️',n:'赛车'},{e:'🚓',n:'警车'},{e:'🛻',n:'皮卡'},{e:'🚛',n:'卡车'}]
+                : [{e:'🚗',n:'Car'},{e:'🚙',n:'SUV'},{e:'🚕',n:'Taxi'},{e:'🚐',n:'Van'},{e:'🏎️',n:'Racing'},{e:'🚓',n:'Police'},{e:'🛻',n:'Pickup'},{e:'🚛',n:'Truck'}];
             const target = types[Math.floor(Math.random()*types.length)];
-            const allCars = ['🚗','🚙','🚕','🚐','🏎️','🚓'];
+            const allCars = ['🚗','🚙','🚕','🚐','🏎️','🚓','🛻','🚘','🚖','🚛','🚚','🚜'];
             const targetNum = Math.floor(Math.random()*3)+3;
             gameState.targetCount = targetNum;
             gameState.scene = [];
@@ -1533,8 +1727,8 @@
                 [gameState.scene[i],gameState.scene[j]]=[gameState.scene[j],gameState.scene[i]];
             }
             area.innerHTML = `
-                <div class="game-title">🔢 数汽车</div>
-                <div class="game-instruction">数一数有几辆 ${target.e} ${target.n}?</div>
+                <div class="game-title">🔢 ${i18n[currentLang].levels[10].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[10].instruction} ${target.e} ${target.n}?</div>
                 <div class="counting-scene" id="countingScene"></div>
                 <div class="counting-question">有几辆 ${target.e} ?</div>
                 <div class="number-btns" id="countBtns"></div>
@@ -1572,8 +1766,8 @@
             gameState.safe=true;
             gameState.running=true;
             area.innerHTML = `
-                <div class="game-title">🚶 汽车过马路</div>
-                <div class="game-instruction">等车过去，点按钮前进!</div>
+                <div class="game-title">🚶 ${i18n[currentLang].levels[11].name}</div>
+                <div class="game-instruction">${i18n[currentLang].levels[11].instruction}</div>
                 <div class="crossing-scene">
                     <div class="crossing-road">
                         <div class="crossing-car" id="crossingPlayer">🚗</div>
@@ -1628,20 +1822,22 @@
         }
         
         function showResult(stars) {
+            const t = i18n[currentLang];
             levelStars[currentLevel-1] = Math.max(levelStars[currentLevel-1], stars);
             
             const overlay = document.getElementById('resultOverlay');
             document.getElementById('resultIcon').textContent = stars === 3 ? '🎉' : stars === 2 ? '😊' : '👍';
-            document.getElementById('resultText').textContent = stars === 3 ? '太棒了!' : stars === 2 ? '不错哦!' : '继续加油!';
+            document.getElementById('resultText').textContent = stars === 3 ? t.awesome : stars === 2 ? t.good : t.keepGoing;
             document.getElementById('resultStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3-stars);
             overlay.style.display = 'flex';
             
+            playSuccessSound();
             if (stars >= 2) createConfetti();
         }
         
         function nextLevel() {
             document.getElementById('resultOverlay').style.display = 'none';
-            if (currentLevel < 9) {
+            if (currentLevel < 12) {
                 startLevel(currentLevel + 1);
             } else {
                 backToMenu();
