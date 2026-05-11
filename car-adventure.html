@@ -888,6 +888,8 @@
         @keyframes confettiFall {
             to { top: 110vh; transform: rotate(720deg); }
         }
+        /* 主题汽车 SVG */
+        .tc-svg { display: inline-block; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -899,7 +901,7 @@
     
     <!-- 主菜单 -->
     <div class="menu-screen" id="menuScreen">
-        <div class="road-decoration">🛣️🚗🚕🚙🏎️🚐🚓🛻🚘🚖🚛🛣️</div>
+        <div class="road-decoration" id="roadDecor"></div>
         <h1 class="menu-title">🚗 小汽车大冒险</h1>
         <div class="stars-display" id="starsDisplay"><span id="starsLabel"></span><span id="totalStars">0</span>/36</div>
         <div class="level-grid" id="levelGrid"></div>
@@ -930,6 +932,11 @@
     <script>
         // 语言设置
         let currentLang = 'zh'; // 'zh' 或 'en'
+
+        const CAR_ICECREAM = '<svg class="tc-svg" viewBox="0 0 120 80" width="1.5em" height="1em"><rect x="3" y="38" width="114" height="26" rx="8" fill="#FFB6C1"/><path d="M24,38Q24,22 38,22H82Q96,22 96,38Z" fill="#FF9AAE"/><rect x="34" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><rect x="53" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><circle cx="28" cy="64" r="9" fill="#444"/><circle cx="28" cy="64" r="3.5" fill="#999"/><circle cx="92" cy="64" r="9" fill="#444"/><circle cx="92" cy="64" r="3.5" fill="#999"/><ellipse cx="112" cy="48" rx="4" ry="3" fill="#FFE066"/><ellipse cx="8" cy="48" rx="3" ry="2.5" fill="#FF6666" opacity=".7"/><polygon points="60,22 53,10 67,10" fill="#DEB060"/><circle cx="60" cy="8" r="6.5" fill="#FFF0F5"/><circle cx="55" cy="5" r="5" fill="#FF85B0"/><circle cx="65" cy="5" r="5" fill="#FFC0D8"/><circle cx="60" cy="2" r="3.5" fill="#FFE0EB"/></svg>';
+        const CAR_CHOCOLATE = '<svg class="tc-svg" viewBox="0 0 120 80" width="1.5em" height="1em"><rect x="3" y="38" width="114" height="26" rx="8" fill="#A0734C"/><path d="M24,38Q24,22 38,22H82Q96,22 96,38Z" fill="#B8885E"/><rect x="34" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><rect x="53" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><circle cx="28" cy="64" r="9" fill="#444"/><circle cx="28" cy="64" r="3.5" fill="#999"/><circle cx="92" cy="64" r="9" fill="#444"/><circle cx="92" cy="64" r="3.5" fill="#999"/><ellipse cx="112" cy="48" rx="4" ry="3" fill="#FFE066"/><ellipse cx="8" cy="48" rx="3" ry="2.5" fill="#FF6666" opacity=".7"/><rect x="42" y="4" width="36" height="16" rx="3" fill="#5C3317"/><line x1="52" y1="4" x2="52" y2="20" stroke="#3D1F0B" stroke-width="1.8"/><line x1="60" y1="4" x2="60" y2="20" stroke="#3D1F0B" stroke-width="1.8"/><line x1="68" y1="4" x2="68" y2="20" stroke="#3D1F0B" stroke-width="1.8"/><line x1="42" y1="12" x2="78" y2="12" stroke="#3D1F0B" stroke-width="1.2"/></svg>';
+        const CAR_STRAWBERRY = '<svg class="tc-svg" viewBox="0 0 120 80" width="1.5em" height="1em"><rect x="3" y="38" width="114" height="26" rx="8" fill="#FF6B81"/><path d="M24,38Q24,22 38,22H82Q96,22 96,38Z" fill="#FF8DA3"/><rect x="34" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><rect x="53" y="25" width="13" height="10" rx="3" fill="#B8E4FF"/><circle cx="28" cy="64" r="9" fill="#444"/><circle cx="28" cy="64" r="3.5" fill="#999"/><circle cx="92" cy="64" r="9" fill="#444"/><circle cx="92" cy="64" r="3.5" fill="#999"/><ellipse cx="112" cy="48" rx="4" ry="3" fill="#FFE066"/><ellipse cx="8" cy="48" rx="3" ry="2.5" fill="#FF6666" opacity=".7"/><ellipse cx="60" cy="12" rx="11" ry="13" fill="#FF2255"/><circle cx="56" cy="9" r="1.8" fill="#FFE066"/><circle cx="64" cy="14" r="1.8" fill="#FFE066"/><circle cx="58" cy="17" r="1.8" fill="#FFE066"/><circle cx="65" cy="7" r="1.8" fill="#FFE066"/><circle cx="60" cy="4" r="1.8" fill="#FFE066"/><path d="M53,2L60,9L67,2" fill="#33AA55"/><path d="M55,0L60,7L65,0" fill="#228B22"/></svg>';
+        const CAR_RACING = '<svg class="tc-svg" viewBox="0 0 120 74" width="1.5em" height=".92em"><rect x="1" y="30" width="118" height="26" rx="5" fill="#DD0000"/><path d="M16,30L30,12H90L104,30Z" fill="#FF2222"/><rect x="36" y="15" width="14" height="12" rx="2" fill="#B8E4FF"/><rect x="56" y="15" width="14" height="12" rx="2" fill="#B8E4FF"/><circle cx="26" cy="56" r="10" fill="#333"/><circle cx="26" cy="56" r="4.5" fill="#888"/><circle cx="94" cy="56" r="10" fill="#333"/><circle cx="94" cy="56" r="4.5" fill="#888"/><rect x="0" y="40" width="120" height="4" rx="2" fill="#FFD700" opacity=".8"/><ellipse cx="115" cy="40" rx="4" ry="3" fill="#FFE066"/><ellipse cx="5" cy="40" rx="3" ry="2.5" fill="#FF4444" opacity=".8"/><rect x="100" y="16" width="8" height="14" rx="2" fill="#AA0000"/><rect x="98" y="10" width="14" height="6" rx="1.5" fill="#333"/></svg>';
         
         const i18n = {
             zh: {
@@ -1249,12 +1256,21 @@
         // 关卡1: 停车场
         function initParking(area) {
             const isZh = currentLang === 'zh';
-            const colors = [
+            const allParkingCars = [
                 {name: isZh ? '红' : 'Red', bg:'#ff4444', car:'🚗'},
                 {name: isZh ? '蓝' : 'Blue', bg:'#4444ff', car:'🚙'},
                 {name: isZh ? '黄' : 'Yellow', bg:'#ffdd00', car:'🚕'},
-                {name: isZh ? '绿' : 'Green', bg:'#44ff44', car:'🚐'}
+                {name: isZh ? '绿' : 'Green', bg:'#44ff44', car:'🚐'},
+                {name: isZh ? '冰淇淋' : 'Ice Cream', bg:'#FFB6C1', car: CAR_ICECREAM},
+                {name: isZh ? '巧克力' : 'Chocolate', bg:'#8B4513', car: CAR_CHOCOLATE},
+                {name: isZh ? '草莓' : 'Strawberry', bg:'#FF69B4', car: CAR_STRAWBERRY},
+                {name: isZh ? '赛车' : 'Racing', bg:'#C0C0C0', car: CAR_RACING}
             ];
+            for (let i = allParkingCars.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allParkingCars[i], allParkingCars[j]] = [allParkingCars[j], allParkingCars[i]];
+            }
+            const colors = allParkingCars.slice(0, 4);
             gameState.matched = 0;
             gameState.selected = null;
             
@@ -1556,7 +1572,7 @@
             const lane = Math.floor(Math.random() * 3);
             const el = document.createElement('div');
             el.className = isCoin ? 'coin' : 'obstacle';
-            el.innerHTML = isCoin ? '💰' : ['🚗','🚕','🚙','🚐','🚓','🛻','🚘','🚖','🚛'][Math.floor(Math.random()*9)];
+            el.innerHTML = isCoin ? '💰' : ['🚗','🚕','🚙','🚐','🚓','🛻','🚘','🚖','🚛',CAR_ICECREAM,CAR_CHOCOLATE,CAR_STRAWBERRY,CAR_RACING][Math.floor(Math.random()*13)];
             const trackHeight = document.getElementById('raceTrack').offsetHeight;
             const laneHeight = trackHeight / 3;
             el.style.top = (lane * laneHeight + laneHeight/2 - 20) + 'px';
@@ -1708,7 +1724,7 @@
                     <div class="congrats-text">${i18n[currentLang].youAreMaster}</div>
                     <div class="all-stars">${'⭐'.repeat(levelStars.reduce((a,b)=>a+b,0))}</div>
                     <div style="font-size:24px;margin:20px">${i18n[currentLang].collected} <b>${levelStars.reduce((a,b)=>a+b,0)}</b> ${i18n[currentLang].stars}</div>
-                    <div style="font-size:60px;margin:20px">🚗🚕🚙🏎️🚐🚓🛻🚘🚖🚛🚚🚜</div>
+                    <div style="font-size:60px;margin:20px">🚗🚕🚙🏎️${CAR_ICECREAM}${CAR_CHOCOLATE}${CAR_STRAWBERRY}🚐🚓🛻🚘🚖🚛</div>
                 </div>
             `;
             createConfetti();
@@ -1786,7 +1802,8 @@
             pat.forEach((lane) => {
                 const el = document.createElement('div');
                 el.className = 'escape-obstacle';
-                el.textContent = ['🚙', '🚕', '🚧', '🛢️'][Math.floor(Math.random() * 4)];
+                const barrierEmojis = ['🚙', '🚕', '🚧', '🛢️', CAR_ICECREAM, CAR_CHOCOLATE, CAR_STRAWBERRY];
+                el.innerHTML = barrierEmojis[Math.floor(Math.random() * barrierEmojis.length)];
                 el.dataset.type = 'obstacle';
                 el.dataset.lane = String(lane);
                 el.style.left = positions[lane];
@@ -1961,7 +1978,8 @@
                 }
                 const el = document.createElement('div');
                 el.className = 'escape-obstacle';
-                el.textContent = ['🚙', '🚕', '🚐', '🚓', '🛻', '🚘', '🚖', '🚧', '🛢️'][Math.floor(Math.random() * 9)];
+                const obsEmojis = ['🚙', '🚕', '🚐', '🚓', '🛻', '🚘', '🚖', '🚧', '🛢️', CAR_ICECREAM, CAR_CHOCOLATE, CAR_STRAWBERRY, CAR_RACING];
+                el.innerHTML = obsEmojis[Math.floor(Math.random() * obsEmojis.length)];
                 el.dataset.type = 'obstacle';
                 el.dataset.lane = String(lane);
                 el.style.left = positions[lane];
@@ -2101,7 +2119,7 @@
         // 关卡10: 汽车配对 (连连看)
         function initMatching(area) {
             // 随机选择6种汽车
-            const allCars = ['🚗', '🚙', '🚕', '🚐', '🏎️', '🚓', '🛻', '🚘', '🚖', '🚛', '🚚', '🚜'];
+            const allCars = ['🚗', '🚙', '🚕', '🚐', '🏎️', '🚓', '🛻', '🚘', '🚖', '🚛', '🚚', '🚜', CAR_ICECREAM, CAR_CHOCOLATE, CAR_STRAWBERRY];
             const shuffled = allCars.sort(() => Math.random() - 0.5);
             const cars = shuffled.slice(0, 6);
             gameState.cards = [];
@@ -2165,10 +2183,10 @@
         // 关卡11: 数汽车
         function initCounting(area) {
             const types = currentLang === 'zh' 
-                ? [{e:'🚗',n:'小汽车'},{e:'🚙',n:'越野车'},{e:'🚕',n:'出租车'},{e:'🚐',n:'面包车'},{e:'🏎️',n:'赛车'},{e:'🚓',n:'警车'},{e:'🛻',n:'皮卡'},{e:'🚛',n:'卡车'}]
-                : [{e:'🚗',n:'Car'},{e:'🚙',n:'SUV'},{e:'🚕',n:'Taxi'},{e:'🚐',n:'Van'},{e:'🏎️',n:'Racing'},{e:'🚓',n:'Police'},{e:'🛻',n:'Pickup'},{e:'🚛',n:'Truck'}];
+                ? [{e:'🚗',n:'小汽车'},{e:'🚙',n:'越野车'},{e:'🚕',n:'出租车'},{e:'🚐',n:'面包车'},{e:'🏎️',n:'赛车'},{e:'🚓',n:'警车'},{e:'🛻',n:'皮卡'},{e:'🚛',n:'卡车'},{e:CAR_ICECREAM,n:'冰淇淋车'},{e:CAR_CHOCOLATE,n:'巧克力车'},{e:CAR_STRAWBERRY,n:'草莓车'}]
+                : [{e:'🚗',n:'Car'},{e:'🚙',n:'SUV'},{e:'🚕',n:'Taxi'},{e:'🚐',n:'Van'},{e:'🏎️',n:'Racing'},{e:'🚓',n:'Police'},{e:'🛻',n:'Pickup'},{e:'🚛',n:'Truck'},{e:CAR_ICECREAM,n:'Ice Cream Car'},{e:CAR_CHOCOLATE,n:'Chocolate Car'},{e:CAR_STRAWBERRY,n:'Strawberry Car'}];
             const target = types[Math.floor(Math.random()*types.length)];
-            const allCars = ['🚗','🚙','🚕','🚐','🏎️','🚓','🛻','🚘','🚖','🚛','🚚','🚜'];
+            const allCars = ['🚗','🚙','🚕','🚐','🏎️','🚓','🛻','🚘','🚖','🚛','🚚','🚜',CAR_ICECREAM,CAR_CHOCOLATE,CAR_STRAWBERRY];
             const targetNum = Math.floor(Math.random()*3)+3;
             gameState.targetCount = targetNum;
             gameState.scene = [];
@@ -2192,7 +2210,7 @@
             gameState.scene.forEach(c => {
                 const el = document.createElement('span');
                 el.className = 'scene-car';
-                el.textContent = c;
+                el.innerHTML = c;
                 scene.appendChild(el);
             });
             const btns = document.getElementById('countBtns');
@@ -2322,6 +2340,7 @@
         
         // 初始化
         loadProgress();
+        document.getElementById('roadDecor').innerHTML = '🛣️🚗🚕' + CAR_ICECREAM + '🚙' + CAR_RACING + CAR_CHOCOLATE + '🚐🚓' + CAR_STRAWBERRY + '🛻🛣️';
         initMenu();
     </script>
 </body>
